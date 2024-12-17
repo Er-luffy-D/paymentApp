@@ -37,8 +37,8 @@ router.post("/transfer",authMiddleware,async (req,res)=>{
                 message: "Invalid account"
         })
     }
-
     // Now doing transactions
+
     console.log(req.userId," and ",to);
     await Account.updateOne({user_Id:req.userId},{$inc: {balance:-amount}} ).session(session)
     await Account.updateOne({user_Id:to},{$inc: {balance:amount}} ).session(session)

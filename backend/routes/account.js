@@ -1,5 +1,5 @@
 const express=require('express')
-const { authMiddleware } = require('../middleware')
+const { authMiddleware } = require('../middlewares/AuthMiddleware')
 const { Account } = require('../db')
 const mongoose = require('mongoose')
 const router=express.Router()
@@ -39,7 +39,6 @@ router.post("/transfer",authMiddleware,async (req,res)=>{
     }
     // Now doing transactions
 
-    console.log(req.userId," and ",to);
     await Account.updateOne({user_Id:req.userId},{$inc: {balance:-amount}} ).session(session)
     await Account.updateOne({user_Id:to},{$inc: {balance:amount}} ).session(session)
 
@@ -52,7 +51,8 @@ router.post("/transfer",authMiddleware,async (req,res)=>{
 
 module.exports=router
 
-// jwt->
-// Piyush-> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc2MDliMzU0NDNjY2VhODY0ZWE2ZTY1IiwiaWF0IjoxNzM0Mzg0NDM3fQ.y3s8EqsnuKkGcCn-G8t5A_kajb_36oQqJAX0Y1i_I30
 
-// Abhi-> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc2MDliYWM0NDNjY2VhODY0ZWE2ZTZhIiwiaWF0IjoxNzM0Mzg0NTU2fQ.EVLTKfLhY-JrwPrbq0XCNgcbkz1r7QjHD9OasOxGpYk
+// jwt->
+// Piyush-> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc2MWE4ODhkOWYxZTAwOTQzZmZiYmI5IiwiaWF0IjoxNzM0NDUzMzg0fQ.2MbKMWr16DRILXSOaSyqIC_GckNPwfbKz7M1_lXHfs0
+
+// raske-> eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc2MWE4YWRkOWYxZTAwOTQzZmZiYmJlIiwiaWF0IjoxNzM0NDUzNDIxfQ.UWxJVeOx1v-vDEa2gvio9jtPvKquY0_Fz4bSVdN4Npw

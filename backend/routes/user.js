@@ -1,7 +1,7 @@
 const express = require("express");
 const { authMiddleware } = require("../middlewares/AuthMiddleware");
 const router = express.Router();
-const {User, Account} = require("../db");
+const { User, Account } = require("../db");
 const zod = require("zod");
 const JWT_SECRET = require("../config");
 const jwt = require("jsonwebtoken");
@@ -25,30 +25,31 @@ router.put("/", authMiddleware, async (req, res) => {
   });
 });
 
-router.get("/bulk",async(req,res)=>{
-  const name=req.query.filter||"";
-  const users=await User.find({
-    $or:[{
-      firstName:{
-        '$regex':name
-      }
-    },
-  {
-    lastName:{
-      "$regex":name
-    }
-  }]
-  })
+router.get("/bulk", authMiddleware, async (req, res) => {
+  const name = req.query.filter || "";
+  const users = await User.find({
+    $or: [
+      {
+        firstName: {
+          $regex: name,
+        },
+      },
+      {
+        lastName: {
+          $regex: name,
+        },
+      },
+    ],
+  });
   res.json({
-    user:users.map(user=>({
+    user: users.map((user) => ({
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      _id: user._id
-    }))
-  })
-})
-
+      _id: user._id,
+    })),
+  });
+});
 
 const signupSchema = zod.object({
   username: zod.string().email(),
@@ -61,7 +62,7 @@ router.post("/signup", async (req, res) => {
   const body = req.body;
   const { success } = signupSchema.safeParse(body);
   if (!success) {
-    return res.json({
+    return res.status(411).json({
       message: "Email already taken/ Incorrect inputs",
     });
   }
@@ -69,25 +70,25 @@ router.post("/signup", async (req, res) => {
   const existingUser = await User.findOne({
     username: body.username,
   });
-  if(existingUser) {
-    return res.json({
+  if (existingUser) {
+    return res.status(411).json({
       message: "Email already taken/ Incorrect inputs",
     });
   }
 
   const newUser = await User.create(body);
-  const user_Id=newUser._id;
+  const user_Id = newUser._id;
   await Account.create({
-    user_Id:user_Id,
-    balance:1+Math.floor(Math.random()*10000)
-  })
+    user_Id: user_Id,
+    balance: 1 + Math.floor(Math.random() * 10000),
+  });
   const token = jwt.sign(
     {
       user_id: newUser._id,
     },
     JWT_SECRET
   );
-  res.json({
+  res.status(200).json({
     message: "User Created successfully",
     jwt: token,
   });
